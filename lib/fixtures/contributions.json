@@ -1,0 +1,46 @@
+{
+  "login": "bbabpuli",
+  "name": "Dongeun",
+  "avatarUrl": "https://avatars.githubusercontent.com/u/1?v=4",
+  "contributionsCollection": {
+    "totalCommitContributions": 300,
+    "totalPullRequestContributions": 40,
+    "totalIssueContributions": 15,
+    "totalPullRequestReviewContributions": 8,
+    "contributionCalendar": {
+      "totalContributions": 363,
+      "weeks": [
+        { "contributionDays": [
+          { "date": "2026-01-01", "contributionCount": 2 },
+          { "date": "2026-01-02", "contributionCount": 0 },
+          { "date": "2026-01-03", "contributionCount": 5 }
+        ]},
+        { "contributionDays": [
+          { "date": "2026-01-04", "contributionCount": 1 },
+          { "date": "2026-01-05", "contributionCount": 3 }
+        ]}
+      ]
+    },
+    "commitContributionsByRepository": [
+      {
+        "contributions": { "totalCount": 200 },
+        "repository": {
+          "nameWithOwner": "bbabpuli/pay-pos",
+          "languages": { "edges": [
+            { "size": 60000, "node": { "name": "Java", "color": "#b07219" } },
+            { "size": 20000, "node": { "name": "HTML", "color": "#e34c26" } }
+          ]}
+        }
+      },
+      {
+        "contributions": { "totalCount": 100 },
+        "repository": {
+          "nameWithOwner": "bbabpuli/tinyou",
+          "languages": { "edges": [
+            { "size": 40000, "node": { "name": "TypeScript", "color": "#3178c6" } }
+          ]}
+        }
+      }
+    ]
+  }
+}
