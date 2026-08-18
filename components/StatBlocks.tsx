@@ -41,7 +41,9 @@ export function StatBlocks({ stats, lang }: { stats: WrappedStats; lang: Lang })
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded-xl bg-white/5 p-4">
           <div className="text-sm text-gray-400">{t(lang, "longestStreak")}</div>
-          <div className="text-2xl font-bold">🔥 {stats.longestStreak}{lang === "ko" ? "일" : ` ${t(lang, "days")}`}</div>
+          <div className="text-2xl font-bold">
+            🔥 {stats.longestStreak}{lang === "ko" ? t(lang, "days") : ` ${t(lang, "days")}`}
+          </div>
         </div>
         {stats.hottestMonth && (
           <div className="rounded-xl bg-white/5 p-4">

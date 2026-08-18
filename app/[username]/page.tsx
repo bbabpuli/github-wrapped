@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { fetchContributions } from "@/lib/github";
+import Link from "next/link";
+import { fetchContributions, isValidGithubUsername } from "@/lib/github";
 import { computeStats } from "@/lib/stats";
 import { getTagline } from "@/lib/tagline";
 import { currentYear } from "@/lib/year";
@@ -25,13 +26,35 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
-function ErrorScreen({ lang, titleKey, bodyKey }: {
+function LangToggle({ username, lang }: { username: string; lang: Lang }) {
+  return (
+    <div className="absolute right-6 top-6 text-sm text-gray-400">
+      <Link
+        href={`/${encodeURIComponent(username)}?lang=ko`}
+        className={lang === "ko" ? "font-bold text-white" : ""}
+      >
+        한국어
+      </Link>
+      {" · "}
+      <Link
+        href={`/${encodeURIComponent(username)}?lang=en`}
+        className={lang === "en" ? "font-bold text-white" : ""}
+      >
+        English
+      </Link>
+    </div>
+  );
+}
+
+function ErrorScreen({ username, lang, titleKey, bodyKey }: {
+  username: string;
   lang: Lang;
   titleKey: "notFoundTitle" | "rateLimitedTitle" | "apiErrorTitle";
   bodyKey: "notFoundBody" | "rateLimitedBody" | "apiErrorBody";
 }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0d1117] px-6 text-white">
+    <main className="relative flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0d1117] px-6 text-white">
+      <LangToggle username={username} lang={lang} />
       <h1 className="text-3xl font-bold">{t(lang, titleKey)}</h1>
       <p className="text-gray-400">{t(lang, bodyKey)}</p>
       <a href={`/?lang=${lang}`} className="mt-4 rounded-lg bg-emerald-500 px-5 py-3 font-bold text-black">
@@ -42,24 +65,35 @@ function ErrorScreen({ lang, titleKey, bodyKey }: {
 }
 
 export default async function WrappedPage({ params, searchParams }: Props) {
-  const { username } = await params;
+  const { username: rawUsername } = await params;
   const lang = parseLang((await searchParams).lang);
   const year = currentYear();
 
-  const result = await fetchContributions(decodeURIComponent(username), year);
+  let username: string;
+  try {
+    username = decodeURIComponent(rawUsername);
+  } catch {
+    return <ErrorScreen username={rawUsername} lang={lang} titleKey="notFoundTitle" bodyKey="notFoundBody" />;
+  }
+
+  if (!isValidGithubUsername(username))
+    return <ErrorScreen username={username} lang={lang} titleKey="notFoundTitle" bodyKey="notFoundBody" />;
+
+  const result = await fetchContributions(username, year);
   if (!result.ok) {
     if (result.error === "not_found")
-      return <ErrorScreen lang={lang} titleKey="notFoundTitle" bodyKey="notFoundBody" />;
+      return <ErrorScreen username={username} lang={lang} titleKey="notFoundTitle" bodyKey="notFoundBody" />;
     if (result.error === "rate_limited")
-      return <ErrorScreen lang={lang} titleKey="rateLimitedTitle" bodyKey="rateLimitedBody" />;
-    return <ErrorScreen lang={lang} titleKey="apiErrorTitle" bodyKey="apiErrorBody" />;
+      return <ErrorScreen username={username} lang={lang} titleKey="rateLimitedTitle" bodyKey="rateLimitedBody" />;
+    return <ErrorScreen username={username} lang={lang} titleKey="apiErrorTitle" bodyKey="apiErrorBody" />;
   }
 
   const stats = computeStats(result.data, year);
   const tagline = await getTagline(stats, lang);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#0d1117] to-[#161b2e] px-6 py-12 text-white">
+    <main className="relative min-h-screen bg-gradient-to-b from-[#0d1117] to-[#161b2e] px-6 py-12 text-white">
+      <LangToggle username={username} lang={lang} />
       <div className="mx-auto flex max-w-2xl flex-col gap-8">
         <header className="flex items-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}

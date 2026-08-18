@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { fetchContributions } from "@/lib/github";
+import { fetchContributions, isValidGithubUsername } from "@/lib/github";
 import { computeStats } from "@/lib/stats";
 import { pickTagline } from "@/lib/phrases";
 import { currentYear } from "@/lib/year";
@@ -9,31 +9,54 @@ export const runtime = "nodejs"; // unstable_cache 공유 위해 페이지와 �
 
 const W = 1200;
 const H = 630;
+const OG_HEADERS = { "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400" };
+
+function fallbackCard() {
+  return new ImageResponse(
+    (
+      <div style={{
+        width: W, height: H, display: "flex", alignItems: "center", justifyContent: "center",
+        background: "#0d1117", color: "#fff", fontSize: 48, fontWeight: 700,
+      }}>
+        🎁 GitHub Wrapped
+      </div>
+    ),
+    { width: W, height: H, headers: OG_HEADERS },
+  );
+}
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ username: string }> },
 ) {
-  const { username } = await params;
-  const lang = parseLang(new URL(req.url).searchParams.get("lang") ?? undefined);
-  const year = currentYear();
-  const result = await fetchContributions(decodeURIComponent(username), year);
+  try {
+    const { username: rawUsername } = await params;
+    const lang = parseLang(new URL(req.url).searchParams.get("lang") ?? undefined);
+    const year = currentYear();
 
-  if (!result.ok) {
-    return new ImageResponse(
-      (
-        <div style={{
-          width: W, height: H, display: "flex", alignItems: "center", justifyContent: "center",
-          background: "#0d1117", color: "#fff", fontSize: 48, fontWeight: 700,
-        }}>
-          🎁 GitHub Wrapped
-        </div>
-      ),
-      { width: W, height: H },
-    );
+    let username: string;
+    try {
+      username = decodeURIComponent(rawUsername);
+    } catch {
+      return fallbackCard();
+    }
+    if (!isValidGithubUsername(username)) return fallbackCard();
+
+    const result = await fetchContributions(username, year);
+    if (!result.ok) return fallbackCard();
+
+    const stats = computeStats(result.data, year);
+    return renderCard(stats, year, lang);
+  } catch {
+    return fallbackCard();
   }
+}
 
-  const stats = computeStats(result.data, year);
+function renderCard(
+  stats: ReturnType<typeof computeStats>,
+  year: number,
+  lang: ReturnType<typeof parseLang>,
+) {
   const tagline = pickTagline(stats, lang);
   const nums: [string, number][] = [
     ["Commits", stats.totals.commits],
@@ -110,6 +133,6 @@ export async function GET(
         </div>
       </div>
     ),
-    { width: W, height: H },
+    { width: W, height: H, headers: OG_HEADERS },
   );
 }
