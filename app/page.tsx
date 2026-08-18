@@ -1,5 +1,6 @@
 import { parseLang, t } from "@/lib/i18n";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default async function Home({
   searchParams,
@@ -18,9 +19,9 @@ export default async function Home({
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gradient-to-b from-[#0d1117] to-[#161b2e] px-6 text-white">
       <div className="absolute right-6 top-6 text-sm text-gray-400">
-        <a href="/?lang=ko" className={lang === "ko" ? "text-white font-bold" : ""}>한국어</a>
+        <Link href="/?lang=ko" className={lang === "ko" ? "text-white font-bold" : ""}>한국어</Link>
         {" · "}
-        <a href="/?lang=en" className={lang === "en" ? "text-white font-bold" : ""}>English</a>
+        <Link href="/?lang=en" className={lang === "en" ? "text-white font-bold" : ""}>English</Link>
       </div>
       <h1 className="text-5xl font-extrabold tracking-tight">
         🎁 {t(lang, "title")}

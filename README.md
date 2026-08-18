@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎁 GitHub Wrapped
 
-## Getting Started
+올해 당신의 GitHub 활동을 카드 한 장으로 — 스포티파이 연말 결산의 개발자 버전.
 
-First, run the development server:
+유저명을 입력하면 커밋·PR·언어·잔디·streak을 분석해 공유용 카드를 만들어 줍니다.
+링크를 X/카카오톡에 붙이면 카드 이미지가 미리보기로 뜹니다.
+
+## 기능
+
+- 연간 커밋 / PR / 이슈 / 리뷰 통계
+- 언어 TOP 5 (repo별 바이트 합산)
+- 잔디 히트맵, 최장 연속 기여 streak, 가장 뜨거웠던 달, 가장 활발한 요일
+- 한 줄 총평 (템플릿 기반, `ANTHROPIC_API_KEY` 설정 시 AI 총평)
+- 한국어 / English
+- OG 카드 이미지 (`/api/og/{username}`) — 링크 공유 = 카드 공유
+
+## 실행
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local   # GITHUB_TOKEN에 PAT 입력 (scope 불필요)
+npm install
+npm run dev                  # http://localhost:3000
+npm test                     # vitest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 스택
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 (App Router) · TypeScript · Tailwind · next/og · vitest
