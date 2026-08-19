@@ -4,7 +4,7 @@ const messages = {
   ko: {
     title: "GitHub Wrapped",
     subtitle: "올해 당신의 GitHub, 카드 한 장으로",
-    placeholder: "GitHub 유저명 (예: bbabpuli)",
+    placeholder: "GitHub 유저명 (예: honggildong)",
     analyze: "분석하기",
     commits: "커밋",
     prs: "PR",
@@ -32,7 +32,7 @@ const messages = {
   en: {
     title: "GitHub Wrapped",
     subtitle: "Your year on GitHub, in one card",
-    placeholder: "GitHub username (e.g. bbabpuli)",
+    placeholder: "GitHub username (e.g. honggildong)",
     analyze: "Analyze",
     commits: "Commits",
     prs: "PRs",
