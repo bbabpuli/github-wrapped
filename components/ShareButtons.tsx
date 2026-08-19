@@ -15,17 +15,17 @@ export function ShareButtons({
     );
   };
   return (
-    <div className="flex gap-3">
+    <div className="flex flex-wrap gap-3">
       <a
         href={ogPath}
         download={`github-wrapped-${login}-${year}.png`}
-        className="rounded-lg bg-white/10 px-5 py-3 font-bold hover:bg-white/20"
+        className="rounded-2xl bg-limepop px-6 py-4 font-display text-lg text-ink transition-transform hover:-rotate-1 hover:scale-105"
       >
         {t(lang, "saveImage")}
       </a>
       <button
         onClick={share}
-        className="rounded-lg bg-emerald-500 px-5 py-3 font-bold text-black hover:bg-emerald-400"
+        className="rounded-2xl bg-hotpink px-6 py-4 font-display text-lg text-ink transition-transform hover:rotate-1 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-limepop"
       >
         {t(lang, "shareX")}
       </button>

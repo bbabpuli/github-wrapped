@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { ImageResponse } from "next/og";
 import { fetchContributions, isValidGithubUsername } from "@/lib/github";
 import { computeStats } from "@/lib/stats";
@@ -11,17 +13,44 @@ const W = 1200;
 const H = 630;
 const OG_HEADERS = { "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400" };
 
-function fallbackCard() {
+const LIME = "#d2f65a";
+const INK = "#121212";
+const GRAPE = "#4100f4";
+
+let fontPromise: Promise<Buffer> | null = null;
+function loadDisplayFont() {
+  fontPromise ??= readFile(
+    path.join(process.cwd(), "assets/fonts/BlackHanSans-Regular.ttf"),
+  );
+  return fontPromise;
+}
+
+async function cardOptions() {
+  // 폰트 로드 실패 시에도 카드 자체는 반환 (기본 폰트 폴백)
+  try {
+    const display = await loadDisplayFont();
+    return {
+      width: W,
+      height: H,
+      headers: OG_HEADERS,
+      fonts: [{ name: "BlackHan", data: display, style: "normal" as const, weight: 400 as const }],
+    };
+  } catch {
+    return { width: W, height: H, headers: OG_HEADERS };
+  }
+}
+
+async function fallbackCard() {
   return new ImageResponse(
     (
       <div style={{
         width: W, height: H, display: "flex", alignItems: "center", justifyContent: "center",
-        background: "#0d1117", color: "#fff", fontSize: 48, fontWeight: 700,
+        background: LIME, color: INK, fontSize: 72, fontFamily: "BlackHan",
       }}>
         🎁 GitHub Wrapped
       </div>
     ),
-    { width: W, height: H, headers: OG_HEADERS },
+    await cardOptions(),
   );
 }
 
@@ -38,101 +67,88 @@ export async function GET(
     try {
       username = decodeURIComponent(rawUsername);
     } catch {
-      return fallbackCard();
+      return await fallbackCard();
     }
-    if (!isValidGithubUsername(username)) return fallbackCard();
+    if (!isValidGithubUsername(username)) return await fallbackCard();
 
     const result = await fetchContributions(username, year);
-    if (!result.ok) return fallbackCard();
+    if (!result.ok) return await fallbackCard();
 
     const stats = computeStats(result.data, year);
-    return renderCard(stats, year, lang);
+    return await renderCard(stats, year, lang);
   } catch {
-    return fallbackCard();
+    return await fallbackCard();
   }
 }
 
-function renderCard(
+async function renderCard(
   stats: ReturnType<typeof computeStats>,
   year: number,
   lang: ReturnType<typeof parseLang>,
 ) {
   const tagline = pickTagline(stats, lang);
-  const nums: [string, number][] = [
-    ["Commits", stats.totals.commits],
-    ["PRs", stats.totals.prs],
-    ["Issues", stats.totals.issues],
-    ["Reviews", stats.totals.reviews],
+  const minis: [string, string][] = [
+    ["Top language", stats.languages[0] ? `${stats.languages[0].name} ${stats.languages[0].percent}%` : "—"],
+    ["Longest streak", `${stats.longestStreak} ${stats.longestStreak === 1 ? "day" : "days"}`],
+    ["Hottest month", stats.hottestMonth ? monthName("en", stats.hottestMonth) : "—"],
   ];
 
   return new ImageResponse(
     (
       <div style={{
         width: W, height: H, display: "flex", flexDirection: "column",
-        background: "linear-gradient(180deg, #0d1117 0%, #161b2e 100%)",
-        color: "#fff", padding: 56, fontFamily: "sans-serif",
+        background: LIME, color: INK, padding: "48px 56px", fontFamily: "BlackHan",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={stats.avatarUrl} width={88} height={88}
-               style={{ borderRadius: 999, border: "4px solid #34d399" }} alt="" />
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", fontSize: 44, fontWeight: 800 }}>
-              🎁 {stats.login}&apos;s {year} Wrapped
+          <img src={stats.avatarUrl} width={96} height={96}
+               style={{ borderRadius: 999, border: `6px solid ${INK}` }} alt="" />
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", fontSize: 52, lineHeight: 1 }}>
+              {stats.login}&apos;s {year} WRAPPED
             </div>
-            <div style={{ display: "flex", fontSize: 26, color: "#6ee7b7" }}>&ldquo;{tagline}&rdquo;</div>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: 20, marginTop: 48 }}>
-          {nums.map(([label, n]) => (
-            <div key={label} style={{
-              display: "flex", flexDirection: "column", alignItems: "center",
-              background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: "24px 36px", flex: 1,
+            <div style={{
+              display: "flex", alignSelf: "flex-start", background: INK, color: LIME,
+              fontSize: 26, padding: "10px 22px", borderRadius: 999, transform: "rotate(-2deg)",
             }}>
-              <div style={{ fontSize: 48, fontWeight: 800, color: "#34d399" }}>{n.toLocaleString()}</div>
-              <div style={{ fontSize: 22, color: "#9ca3af" }}>{label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ display: "flex", gap: 20, marginTop: 24 }}>
-          <div style={{
-            display: "flex", flexDirection: "column",
-            background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, flex: 1,
-          }}>
-            <div style={{ fontSize: 20, color: "#9ca3af" }}>Top language</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 32, fontWeight: 700 }}>
-              <div style={{
-                width: 18, height: 18, borderRadius: 999,
-                background: stats.languages[0]?.color ?? "#8b949e",
-              }} />
-              {stats.languages[0] ? `${stats.languages[0].name} ${stats.languages[0].percent}%` : "—"}
-            </div>
-          </div>
-          <div style={{
-            display: "flex", flexDirection: "column",
-            background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, flex: 1,
-          }}>
-            <div style={{ fontSize: 20, color: "#9ca3af" }}>Longest streak</div>
-            <div style={{ display: "flex", fontSize: 32, fontWeight: 700 }}>🔥 {stats.longestStreak} days</div>
-          </div>
-          <div style={{
-            display: "flex", flexDirection: "column",
-            background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, flex: 1,
-          }}>
-            <div style={{ fontSize: 20, color: "#9ca3af" }}>Hottest month</div>
-            <div style={{ fontSize: 32, fontWeight: 700 }}>
-              {stats.hottestMonth ? monthName("en", stats.hottestMonth) : "—"}
+              {tagline}
             </div>
           </div>
         </div>
 
-        <div style={{ display: "flex", marginTop: "auto", fontSize: 20, color: "#6b7280" }}>
-          github-wrapped · {stats.totals.contributions.toLocaleString()} contributions in {year}
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 48, marginTop: 36, flex: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", fontSize: 190, lineHeight: 0.9, color: GRAPE }}>
+              {stats.totals.contributions.toLocaleString()}
+            </div>
+            <div style={{ display: "flex", fontSize: 30, marginTop: 10 }}>
+              contributions
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 22, marginLeft: "auto", paddingBottom: 8 }}>
+            {minis.map(([label, value]) => (
+              <div key={label} style={{ display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "flex", fontSize: 20, opacity: 0.55, letterSpacing: 2 }}>
+                  {label.toUpperCase()}
+                </div>
+                <div style={{ display: "flex", fontSize: 38, lineHeight: 1.1 }}>{value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{
+          display: "flex", justifyContent: "space-between", marginTop: 28,
+          borderTop: `4px solid ${INK}`, paddingTop: 18, fontSize: 20,
+        }}>
+          <div style={{ display: "flex" }}>github-wrapped</div>
+          <div style={{ display: "flex", opacity: 0.6 }}>
+            {stats.totals.commits.toLocaleString()} commits · Public activity only
+          </div>
         </div>
       </div>
     ),
-    { width: W, height: H, headers: OG_HEADERS },
+    await cardOptions(),
   );
 }

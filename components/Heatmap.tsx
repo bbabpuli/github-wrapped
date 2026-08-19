@@ -1,6 +1,6 @@
 import type { CalendarDay } from "@/lib/types";
 
-const LEVELS = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"];
+const LEVELS = ["#2b2b2b", "#4d5d1f", "#7a942e", "#a8cc42", "#d2f65a"];
 
 function level(count: number): string {
   if (count === 0) return LEVELS[0];

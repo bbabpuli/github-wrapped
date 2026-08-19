@@ -1,26 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #d2f65a;
+  --foreground: #121212;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-limepop: #d2f65a;
+  --color-grape: #4100f4;
+  --color-hotpink: #f774c4;
+  --color-tang: #ff6437;
+  --color-ink: #121212;
+  --font-display: var(--font-display-face);
+  --font-sans: var(--font-body-face);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-body-face), "Apple SD Gothic Neo", sans-serif;
 }

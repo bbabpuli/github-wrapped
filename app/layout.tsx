@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Black_Han_Sans, IBM_Plex_Sans_KR } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const display = Black_Han_Sans({
+  weight: "400",
+  preload: false,
+  variable: "--font-display-face",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const body = IBM_Plex_Sans_KR({
+  weight: ["400", "600"],
+  preload: false,
+  variable: "--font-body-face",
 });
 
 export const metadata: Metadata = {
@@ -20,8 +22,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="ko"
+      className={`${display.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
