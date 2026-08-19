@@ -144,7 +144,7 @@ async function renderCard(
         }}>
           <div style={{ display: "flex" }}>github-wrapped</div>
           <div style={{ display: "flex", opacity: 0.6 }}>
-            {stats.totals.commits.toLocaleString()} commits · Public activity only
+            {stats.totals.commits.toLocaleString()} {stats.totals.commits === 1 ? "commit" : "commits"} · Public activity only
           </div>
         </div>
       </div>
