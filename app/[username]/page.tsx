@@ -135,6 +135,12 @@ export default async function WrappedPage({ params, searchParams }: Props) {
 
       <section className="w-full bg-ink px-6 py-16 text-white">
         <div className="mx-auto flex max-w-2xl flex-col gap-6">
+          <Link
+            href={`/?lang=${lang}`}
+            className="block rounded-2xl bg-grape px-6 py-6 text-center font-display text-2xl text-white transition-transform hover:-rotate-1 hover:scale-[1.02] sm:text-3xl"
+          >
+            {t(lang, "makeMine")}
+          </Link>
           <ShareButtons login={stats.login} year={year} tagline={tagline} lang={lang} />
           <p className="text-xs font-semibold opacity-50">
             github-wrapped · {t(lang, "publicOnly")}
